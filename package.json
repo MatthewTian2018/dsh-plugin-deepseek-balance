@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-deepseek-balance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "DeepSeek 余额仪表盘：在 DSH 设置里查看余额、消耗速度与余额趋势",
   "license": "MIT",
@@ -44,6 +44,13 @@
     "lib/index.js",
     "lib/client.js",
     "cordis.patch.yml",
-    "README.md"
-  ]
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "pack": "mkdir -p dist && npm pack --pack-destination dist"
+  }
 }

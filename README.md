@@ -1,6 +1,6 @@
 # dsh-plugin-deepseek-balance
 
-DeepSeek 余额仪表盘插件 —— 在 [DeepSeek Harness](https://github.com/deepseek-ai)（DSH）的「设置 → 余额」里查看账户余额、余额构成、消耗速度与余额趋势。
+DeepSeek 余额仪表盘插件 —— 在 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（DSH）的「设置 → 余额」里查看账户余额、余额构成、消耗速度与余额趋势。
 
 ```
 设置 → 余额
@@ -29,27 +29,54 @@ DeepSeek 余额仪表盘插件 —— 在 [DeepSeek Harness](https://github.com/
 | --- | --- | --- |
 | Host | `lib/index.js` | 挂 `GET /api/deepseek-balance/summary`、`POST /api/deepseek-balance/budget`；请求 DeepSeek `/user/balance`；落盘采样历史 |
 | Client | `lib/client.js` | 注册 `settings.section`：「余额」分区，环形仪表 / 构成 / 趋势 / 指标 |
-| Bundle | `cordis.patch.yml` | 被 profile 作为 bundle 引入时，把自己插进 Loader 树 |
+| Bundle | `cordis.patch.yml` | 被 profile 作为组合包（bundle）引入时，把自己插进 Loader 树 |
+
+本包是一个**组合包**：`package.json` 里 `dsh.bundle.patch` 指向 `cordis.patch.yml`，被 profile 的 `dsh.profile.bundles` 列出时生效。
 
 ## 安装
 
-要求：DSH 桌面端（或 web 端）已能正常启动，且 profile 里已配置可用的 DeepSeek API Key。
+要求：DSH 已能正常启动，且本机已配置可用的 DeepSeek API Key。验证环境：DSH `0.2.2-rc.1`（桌面端 / web 端同一套 profile 机制）。
 
-### 方式一：图形界面（推荐）
+三种装法，任选其一。装完都需要**重启 DeepSeek Harness**，插件才会被 Loader 挂载。
 
-1. 设置 → 插件 → 安装，选择本地目录（或填路径）：
-   ```
-   /path/to/dsh-plugin-deepseek-balance
-   ```
-2. 插件管理器会同时写入依赖、`dsh.profile.bundles` 并热加载。
-3. 按 `Cmd + R` 刷新界面，设置左侧出现「余额」。
+### 方式一：发布包（推荐）
 
-### 方式二：手动装进 profile
+从 [Releases](https://github.com/MatthewTian2018/dsh-plugin-deepseek-balance/releases/latest) 下载 `.tgz`，然后用 DSH 的插件命令装进目标 profile：
+
+```bash
+dsh plugin --profile desktop add ./dsh-plugin-deepseek-balance-0.1.1.tgz
+```
+
+装完的 profile `package.json` 会多出依赖，`dsh.profile.bundles` 末尾会追加 `dsh-plugin-deepseek-balance`：
+
+```json
+{
+  "dependencies": { "dsh-plugin-deepseek-balance": "file:./dsh-plugin-deepseek-balance-0.1.1.tgz" },
+  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "…", "dsh-plugin-deepseek-balance"] } }
+}
+```
+
+### 方式二：直接从 GitHub 装
+
+```bash
+dsh plugin --profile desktop add github:MatthewTian2018/dsh-plugin-deepseek-balance
+```
+
+本包**没有 `prepare` / 构建脚本**（`lib/` 里就是可运行源码），所以 pnpm 不会向你索要 `allowBuilds` 授权，省掉这一步。生产环境建议锁 commit：
+
+```bash
+dsh plugin --profile desktop add github:MatthewTian2018/dsh-plugin-deepseek-balance#<sha>
+```
+
+### 方式三：本地目录（改代码用）
+
+图形界面：设置 → 插件 → 安装，填本地路径 `/path/to/dsh-plugin-deepseek-balance`。
+
+或手动：
 
 ```bash
 git clone https://github.com/MatthewTian2018/dsh-plugin-deepseek-balance.git
-cd ~/.dsh/profiles/desktop          # 或 ~/.dsh/profiles/web
-
+cd ~/.dsh/profiles/desktop
 pnpm add link:/path/to/dsh-plugin-deepseek-balance   # link: 便于改代码即时生效
 ```
 
@@ -61,9 +88,13 @@ pnpm add link:/path/to/dsh-plugin-deepseek-balance   # link: 便于改代码即�
 }
 ```
 
-重启 DeepSeek Harness 后生效。
-
 > 用 `link:`（符号链接）而不是 `file:`：`file:` 会硬链一份副本，改代码不会生效。
+
+### 卸载
+
+```bash
+dsh plugin --profile desktop remove dsh-plugin-deepseek-balance
+```
 
 ## 配置
 
@@ -119,6 +150,24 @@ curl -s http://127.0.0.1:<port>/api/deepseek-balance/summary | head -c 400
 ```
 
 数据目录 `~/.dsh/deepseek-balance/` 可以直接删掉重置，插件会重新建。
+
+## 发布（维护者）
+
+```bash
+# 1. 改版本号（package.json）与 CHANGELOG.md
+# 2. 打包装进 dist/，先 dry-run 确认清单
+npm pack --dry-run
+npm run pack                                  # → dist/dsh-plugin-deepseek-balance-<version>.tgz
+
+# 3. 推代码、打 tag、建 Release 并挂上 tgz
+git add -A && git commit -m "chore: release v<version>"
+git push origin main
+git tag v<version> && git push origin v<version>
+gh release create v<version> dist/dsh-plugin-deepseek-balance-<version>.tgz \
+  --title "v<version>" --notes-file <(sed -n '/^## v<version>/,/^## v/p' CHANGELOG.md | head -n -1)
+```
+
+`files` 字段决定包里带什么（`lib/`、`cordis.patch.yml`、`README.md`、`LICENSE`），`package.json` 自动带上；`dist/`、`node_modules/` 不进包也不进仓库。
 
 ## License
 
