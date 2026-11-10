@@ -1,0 +1,49 @@
+{
+  "name": "dsh-plugin-deepseek-balance",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DeepSeek 余额仪表盘：在 DSH 设置里查看余额、消耗速度与余额趋势",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatthewTian2018/dsh-plugin-deepseek-balance.git"
+  },
+  "homepage": "https://github.com/MatthewTian2018/dsh-plugin-deepseek-balance#readme",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "balance",
+    "dashboard"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./cordis.patch.yml"
+      ]
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "README.md"
+  ]
+}

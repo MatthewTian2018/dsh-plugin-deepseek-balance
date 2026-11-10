@@ -1,0 +1,16 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 本地数据与密钥
+data/
+*.log
+.env
+.env.*
+.credentials.yaml
+
+# 系统 / 编辑器
+.DS_Store
+.idea/
+.vscode/
+*.swp

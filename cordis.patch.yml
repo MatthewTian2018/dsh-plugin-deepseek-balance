@@ -1,0 +1,7 @@
+# dsh-plugin-deepseek-balance 的 bundle patch。
+#
+# 作为 profile 的 bundle 被引入时，这一层负责把插件本体插进 Loader 树；
+# 宿主半边提供 /api/deepseek-balance 路由，浏览器半边在设置里注册「余额」分区。
+- insert:
+    - id: deepseek-balance
+      name: dsh-plugin-deepseek-balance
