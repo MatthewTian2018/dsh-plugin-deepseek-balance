@@ -39,6 +39,8 @@ DeepSeek 余额仪表盘插件 —— 在 [DeepSeek Harness](https://github.com/
 
 三种装法，任选其一。装完都需要**重启 DeepSeek Harness**，插件才会被 Loader 挂载。
 
+> 本包刻意没有声明 `engines.dsh`。DSH 在缺少该字段时退回检查 `@deepseek-ai/dsh*` peer 依赖范围，而本包只 peer 了 `@deepseek-ai/cordis: *`，因此不会被版本号（尤其是 `-rc` 预发布号）拒装；实际验证环境见上方说明。
+
 ### 方式一：发布包（推荐）
 
 从 [Releases](https://github.com/MatthewTian2018/dsh-plugin-deepseek-balance/releases/latest) 下载 `.tgz`，然后用 DSH 的插件命令装进目标 profile：
