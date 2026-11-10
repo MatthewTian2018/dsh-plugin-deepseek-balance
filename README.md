@@ -33,6 +33,8 @@ DeepSeek 余额仪表盘插件 —— 在 [DeepSeek Harness](https://github.com/
 dsh plugin --profile web add github:MatthewTian2018/dsh-plugin-deepseek-balance
 ```
 
+> ⚠️ **不要用裸包名安装本插件**：npm 上 `dsh-plugin-deepseek-balance` 是另一位作者（`fanlr`）发布的**同名不同项目**（`dsh-plugins/packages/balance`）。本插件目前没有、也不能用这个名字发到 npm，请按上面的 `github:` 形式或 tgz 安装。
+
 ## 功能
 
 - **环形仪表**：以预算为分母显示当前余额占比，预算可在页面内直接改（防抖 450 ms 落盘）。
@@ -197,6 +199,18 @@ gh release create v<version> dist/dsh-plugin-deepseek-balance-<version>.tgz \
 ```
 
 `files` 字段决定包里带什么（`lib/`、`cordis.patch.yml`、`README.md`、`LICENSE`），`package.json` 自动带上；`dist/`、`node_modules/` 不进包也不进仓库。
+
+### 关于发布到 npm
+
+`package.json` 已去掉 `"private": true`，具备发布条件；但**包名 `dsh-plugin-deepseek-balance` 已被他人占用**（`fanlr` 的同名插件 v2.0.0），直接 `npm publish` 会 403。要走 npm 分发需要先换成带 scope 的名字，例如：
+
+```bash
+npm pkg set name=@<your-scope>/dsh-plugin-deepseek-balance
+npm publish --access public
+# 用户侧：dsh plugin --profile web add @<your-scope>/dsh-plugin-deepseek-balance
+```
+
+换名前请同步更新本仓库 README 的安装命令与 profile 里的依赖名。
 
 ## License
 

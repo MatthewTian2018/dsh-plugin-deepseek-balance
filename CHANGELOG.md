@@ -2,6 +2,19 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## v0.1.3
+
+解除 npm 发布限制，并把 npm 同名冲突写进文档。插件行为不变。
+
+### 变更
+
+- `package.json`：`"private": true` → `"false"`，包本身具备 `npm publish` 条件；版本 `0.1.2` → `0.1.3`。
+- README：新增警告——npm 上 `dsh-plugin-deepseek-balance` 是他人（`fanlr`）发布的同名不同项目，请勿用裸包名安装；「发布（维护者）」补 npm 发布说明（需改用带 scope 的包名）。
+
+### 说明
+
+- 未发布到 npm：该包名已被占用（`fanlr/dsh-plugins`，v2.0.0），`npm publish` 会 403。分发仍走 GitHub（`github:` 安装）与 Release 的 tgz。
+
 ## v0.1.2
 
 面向插件市场（DSH Plugin Hub）收录的元数据版本，插件行为不变。

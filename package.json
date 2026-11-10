@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-deepseek-balance",
-  "version": "0.1.2",
-  "private": true,
+  "version": "0.1.3",
+  "private": false,
   "description": "DeepSeek 余额仪表盘：在 DSH 设置里查看余额、消耗速度与余额趋势",
   "license": "MIT",
   "repository": {
