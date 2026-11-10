@@ -2,6 +2,21 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## v0.1.2
+
+面向插件市场（DSH Plugin Hub）收录的元数据版本，插件行为不变。
+
+### 变更
+
+- `package.json`：`dsh.bundle.patch` 改为官方文档的规范写法 `"./cordis.patch.yml"`（DSH 同时接受有序数组，字符串形式对扫描器更明确）；版本 `0.1.1` → `0.1.2`。
+- README 新增「这是什么」一节：明确本仓库是 DeepSeek Harness（DSH）插件，逐条列出 `dsh-plugin` topic、`dsh.bundle` 声明、导出 `apply(ctx)` 的插件模块、浏览器半边。
+- README 安装命令改为收录要求的 `dsh plugin --profile web add <包名>` 形式（GitHub 源码安装），并补一行 `--dump-config` 校验命令。
+- 仓库 Topics 追加 `deepseek-harness`。
+
+### 验证
+
+- `dsh plugin --profile <tmp> add`（tgz 与 `github:` 两种来源）后，`--dump-config` 均出现 `# == dsh-plugin-deepseek-balance` 层。
+
 ## v0.1.1
 
 打包与分发版本：插件本身行为不变，补齐作为 DSH 组合包（bundle）发布所需的一切。
