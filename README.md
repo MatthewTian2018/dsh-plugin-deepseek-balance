@@ -24,6 +24,7 @@ DeepSeek 余额仪表盘插件 —— 在 [DeepSeek Harness](https://github.com/
 | `dsh.bundle` 声明 | 根目录 `package.json` → `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }` |
 | 插件模块（导出 `apply(ctx)`） | `lib/index.js`：`export const name`、`export const inject`、`export function apply(ctx)` |
 | 浏览器半边 | `lib/client.js`：`window.__ModuleLoader__.load({ id: 'dsh-plugin-deepseek-balance', … })` |
+| Token 用量模块 | `lib/token-usage.js`：读 `~/.dsh/sessions` 里多帧 zstd 会话日志，按天/周/月聚合 |
 
 一句话价值：**装完不用再切浏览器查余额 —— 打开 DSH 设置就能看到还剩多少钱、按当前速度还能撑几天。**
 
@@ -37,10 +38,13 @@ dsh plugin --profile web add github:MatthewTian2018/dsh-plugin-deepseek-balance
 
 ## 功能
 
+![Token 使用趋势](./docs/token-trend.png)
+
 - **环形仪表**：以预算为分母显示当前余额占比，预算可在页面内直接改（防抖 450 ms 落盘）。
 - **余额构成**：区分充值余额与赠送余额，多币种按币种符号显示（CNY / USD / EUR / JPY）。
 - **消耗指标**：日均消耗、按当前速率可用的天数、预算剩余、距上次快照时间。
 - **余额趋势**：24 小时 / 7 天 / 30 天 / 全部四档，鼠标悬停看单点数值，宽度自适应（ResizeObserver）。
+- **Token 使用趋势**：按天 / 按周 / 按月切换，堆叠显示缓存命中、输入、输出；今日 / 本周 / 本月用量与缓存命中率一眼可见。数据来自本机会话日志，不需要额外接口。
 - **后台采样**：Host 每 10 分钟补一次快照，即使不打开设置页，趋势也不断档。
 - **本地优先**：Key、历史、预算全部留在本机，浏览器只拿到数字。
 
@@ -50,6 +54,7 @@ dsh plugin --profile web add github:MatthewTian2018/dsh-plugin-deepseek-balance
 | --- | --- | --- |
 | Host | `lib/index.js` | 挂 `GET /api/deepseek-balance/summary`、`POST /api/deepseek-balance/budget`；请求 DeepSeek `/user/balance`；落盘采样历史 |
 | Client | `lib/client.js` | 注册 `settings.section`：「余额」分区，环形仪表 / 构成 / 趋势 / 指标 |
+| Host 子模块 | `lib/token-usage.js` | 解压 `~/.dsh/sessions/**/session*.jsonl.zstd`，抽出 `assistant/message` 的 usage，按天/周/月分桶 |
 | Bundle | `cordis.patch.yml` | 被 profile 作为组合包（bundle）引入时，把自己插进 Loader 树 |
 
 本包是一个**组合包**：`package.json` 里 `dsh.bundle.patch` 指向 `cordis.patch.yml`，被 profile 的 `dsh.profile.bundles` 列出时生效。
@@ -148,7 +153,7 @@ API Key 只在 Host 进程读取，按以下顺序：
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `GET` | `/api/deepseek-balance/summary?force=1` | 余额 + 趋势 + 指标 + 预算；15 s 缓存，`force=1` 跳过 |
+| `GET` | `/api/deepseek-balance/summary?force=1` | 余额 + 余额趋势 + 指标 + 预算 + token 用量（`usage.day/week/month`）；15 s 缓存，`force=1` 跳过 |
 | `POST` | `/api/deepseek-balance/budget` | `{"budget": 100}`，仅接受 POST |
 
 两条路由挂在 DSH 自身的鉴权之后：未带登录 cookie 一律 401，且只监听回环地址。
@@ -157,12 +162,15 @@ API Key 只在 Host 进程读取，按以下顺序：
 
 - Key 绝不下发浏览器；前端只拿余额、趋势、预算这些数字。
 - 不写任何远程服务；除了 `api.deepseek.com`，插件不发起其它请求。
+- Token 用量只读本机 `~/.dsh/sessions` 会话日志，读出来的只有时间和 token 数，原文内容不解析、不上送。
 
 ## 已知限制
 
 - DeepSeek 余额接口只返回当前快照，**历史是本插件采样出来的**，装完当天曲线从零开始积累。
 - `settings.section` 是设置页的一个分区，所以仪表盘长在设置里，不是独立主页面。
 - 后台采样依赖 DSH 进程常驻；关闭 DSH 期间不会有采样点。
+- Token 趋势只覆盖本机会话日志：其他设备、其它客户端或直连 API 的用量不在里面；会话日志被清理后对应统计也会消失。
+- 只统计 `assistant/message` 记录里的 usage，压缩摘要（compaction）等记录不计入。
 
 ## 开发
 
