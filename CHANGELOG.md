@@ -2,6 +2,20 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## v0.1.5
+
+版式调整，只动 Client 半边，不需要重启 Harness（`Cmd + R` 即可）。
+
+### 变更
+
+- 「Token 使用趋势」卡片从中间移到最后，排在余额指标之后。
+- 消耗指标（预计可用天数 / 窗口内变化 / 采样覆盖 / 预算剩余）与数据来源说明一起收进「余额趋势」卡片底部，不再单独成排。
+
+### 验证
+
+- 组件树断言：卡片顺序为 主卡 → 余额趋势 → Token 使用趋势；余额趋势卡内 4 张指标 + 页脚说明；Token 卡内 4 张指标；根节点外无游离页脚。
+- headless Chrome 截图核对外观。
+
 ## v0.1.4
 
 新增 **Token 使用趋势**：在设置里按天 / 按周 / 按月看 token 消耗。
